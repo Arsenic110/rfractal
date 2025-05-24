@@ -6,8 +6,8 @@ fn main() {
 
     //create default settings
     let mut config = Config { 
-        x: -0.7746806106269039,
-        y: -0.1374168856037867,
+        x: -0.743643887037158704752191506114774,
+        y: 0.131825904205311970493132056385139,
         img_width: 1280,
         img_height: 1280,
         frames: 320, 
