@@ -3,6 +3,9 @@ name = "rfractal"
 version = "0.1.0"
 edition = "2021"
 
+[profile.release]
+opt-level = 3
+
 [dependencies]
 image = "0.25.6"
 rayon = "1.10.0"
