@@ -44,12 +44,12 @@ pub struct DoublePendulum {
 impl Default for DoublePendulum {
     fn default() -> Self {
         DoublePendulum { 
-            max_steps: 8000, 
-            dt: 0.005, 
-            renorm_every: 50, 
-            delta0: 1e-8, 
-            g: 9.81, 
-            lyap_scale: 1.5
+            max_steps: 900, //500-1000
+            dt: 0.005,      //.004-.006
+            renorm_every: 50, //50
+            delta0: 1e-8, //can't be zero
+            g: 9.81, //9.81
+            lyap_scale: 1.5 //2-5
         }
     }
 }
@@ -65,12 +65,12 @@ impl DoublePendulum {
         let delta = th1 - th2;
         let den = 2.0 - (2.0 * delta).cos(); // 2 - cos(2*delta)
 
-        // th1'':
+        //th1:
         let num1 = -g*(2.0*th1.sin()) - g*(th1 - 2.0*th2).sin()
                    - 2.0*(delta).sin()*(w2*w2 + w1*w1*(delta).cos());
         let a1 = num1 / den;
 
-        // th2'':
+        //th2:
         let num2 = 2.0*(delta).sin()*(w1*w1 + g*th1.cos() + w2*w2*(delta).cos());
         let a2 = num2 / den;
 
@@ -82,7 +82,7 @@ impl DoublePendulum {
         }
     }
 
-    // RK4 integration step
+    //RK4 integration step
     fn rk4_step(&self, s: &State, dt: f64) -> State {
         let k1 = self.deriv(s);
         let s2 = s.add_scaled(&k1, dt * 0.5);
@@ -103,8 +103,7 @@ impl DoublePendulum {
 
 impl Fractal for DoublePendulum {
     fn color_at(&self, px: f64, py: f64) -> Rgb<u8> {
-        // px, py are normalized coordinates mapped from main.rs
-        // Map px,py ∈ [0,1] to angle ranges:
+        //map px & py to angle ranges:
         let th1_min = -PI;
         let th1_max = PI;
         let th2_min = -PI;
@@ -114,7 +113,7 @@ impl Fractal for DoublePendulum {
         let th2 = th2_min + (th2_max - th2_min) * py;
         let base = State { th1, th2, w1: 0.0, w2: 0.0 };
 
-        // small initial perturbation along th1 direction
+        //small initial perturbation along th1 direction
         let pert = State { th1: self.delta0, th2: 0.0, w1: 0.0, w2: 0.0 };
         let mut s = base.clone();
         let mut sp = base.add_scaled(&pert, 1.0);
@@ -133,7 +132,7 @@ impl Fractal for DoublePendulum {
                 let d = diff.norm();
                 if d == 0.0 { continue; }
                 sum_log += (d / self.delta0).ln();
-                // renormalize sp to be delta0 away from s in same direction
+                //renormalize sp to be delta0 away from s in same direction
                 let factor = self.delta0 / d;
                 let unit = State {
                     th1: diff.th1 * factor,
@@ -143,28 +142,28 @@ impl Fractal for DoublePendulum {
                 };
                 sp = s.add_scaled(&unit, 1.0);
 
-                // optional early escape
-                if d > 1e2 { // extremely large separation -> give as fast-escape
+                //optional early escape
+                if d > 1e2 { //extremely large separation -> give as fast-escape
                     break;
                 }
             }
         }
 
-        let lambda = if time > 0.0 { sum_log / time } else { 0.0 }; // finite-time lyapunov
+        let lambda = if time > 0.0 { sum_log / time } else { 0.0 }; //finite-time lyapunov
 
-        // Map lambda to color: scale and clamp
+        //map lambda to color: scale and clamp
         let t = (lambda / self.lyap_scale).max(0.0).min(1.0);
 
-        let (r, g, b) = if t < 0.5 {
-            // black → blue
-            let k = t / 0.5; // 0.0 → 1.0
+        let (r, g, b) = if t <= 0.5 {
+            //black -> blue
+            let k = t / 0.5; //0.0 -> 1.0
             let r = 0;
             let g = 0;
             let b = (255.0 * k) as u8;
             (r, g, b)
         } else {
-            // blue → white
-            let k = (t - 0.5) / 0.5; // 0.0 → 1.0
+            // blue -> white
+            let k = (t - 0.5) / 0.5; //0.0 -> 1.0
             let r = (255.0 * k) as u8;
             let g = (255.0 * k) as u8;
             let b = 255;
