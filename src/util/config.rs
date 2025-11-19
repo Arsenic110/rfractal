@@ -21,10 +21,10 @@ impl Default for Config {
         Config { 
             x: 2.49 / 2.0,
             y: 0.25 / 2.0,
-            img_width: 2048,
-            img_height: 2048,
+            img_width: 4192,
+            img_height: 2160,
             frames: 1, 
-            start_zoom: 2000.0, 
+            start_zoom: 7000.0, 
             zoom_step: 2.0,
             log_base: 2.0,
             start_frame: 0,

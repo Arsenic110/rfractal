@@ -49,7 +49,7 @@ impl Default for DoublePendulum {
             renorm_every: 50, //50
             delta0: 1e-8, //can't be zero
             g: 9.81, //9.81
-            lyap_scale: 1.5 //2-5
+            lyap_scale: 2.5 //2-5
         }
     }
 }
